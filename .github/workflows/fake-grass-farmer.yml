@@ -2,7 +2,10 @@ name: Fake Grass Farmer
 
 on:
   schedule:
+    # JST 00:15 = UTC 15:15
+    # GitHub Actions is based on UTC by default.
     - cron: "15 15 * * *"
+
   workflow_dispatch:
 
 permissions:
@@ -14,7 +17,7 @@ concurrency:
 
 jobs:
   farm:
-    name: Run fixed Python command
+    name: Grow fake grass
     runs-on: ubuntu-latest
 
     steps:
@@ -29,10 +32,17 @@ jobs:
       - name: Run Fake Grass Farmer
         run: python farmer.py
 
-      - name: Commit success file
+      - name: Commit and push grass log
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "Saisei2004"
+          git config user.email "zakaesosu1@gmail.com"
+
           git add data/fake_grass.log
-          git diff --cached --quiet || git commit -m "Farm fake grass"
+
+          if git diff --cached --quiet; then
+            echo "No fake grass to commit."
+            exit 0
+          fi
+
+          git commit -m "grow fake grass 🌱"
           git push origin HEAD:${{ github.ref_name }}
