@@ -29,20 +29,33 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Run Fake Grass Farmer
-        run: python farmer.py
+      - name: Pick commit count
+        id: plan
+        run: |
+          count="$(python farmer.py --count)"
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          echo "Fake Grass Farmer will create $count commits."
 
       - name: Commit and push grass log
+        if: steps.plan.outputs.count != '0'
         run: |
           git config user.name "Saisei2004"
           git config user.email "zakaesosu1@gmail.com"
 
-          git add data/fake_grass.log
+          for i in $(seq 1 "${{ steps.plan.outputs.count }}"); do
+            python farmer.py --entry-index "$i" --entry-total "${{ steps.plan.outputs.count }}"
+            git add data/fake_grass.log
 
-          if git diff --cached --quiet; then
-            echo "No fake grass to commit."
-            exit 0
-          fi
+            if git diff --cached --quiet; then
+              echo "No fake grass to commit for entry $i."
+              continue
+            fi
 
-          git commit -m "grow fake grass 🌱"
+            git commit -m "grow fake grass 🌱 ($i/${{ steps.plan.outputs.count }})"
+          done
+
           git push origin HEAD:${{ github.ref_name }}
+
+      - name: Rest field
+        if: steps.plan.outputs.count == '0'
+        run: echo "No fake grass today."

@@ -1,8 +1,8 @@
 # Fake Grass Farmer
 
-Fake Grass Farmer is a tiny GitHub Actions setup that runs one fixed Python command once per day.
+Fake Grass Farmer is a tiny GitHub Actions setup that farms fake GitHub grass once per day.
 
-The command writes a success record to `data/fake_grass.log`. The workflow commits that file back to the repository, so the daily run leaves a persistent trace.
+Each daily workflow run picks a random number from `0` to `6`. It then creates that many commits by appending success records to `data/fake_grass.log`.
 
 ## Files
 
@@ -19,6 +19,6 @@ You can also run it manually from the Actions tab with `workflow_dispatch`.
 ## Command
 
 ```bash
-python farmer.py
+python farmer.py --count
+python farmer.py --entry-index 1 --entry-total 6
 ```
-
