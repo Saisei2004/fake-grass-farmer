@@ -1,0 +1,38 @@
+name: Fake Grass Farmer
+
+on:
+  schedule:
+    - cron: "15 15 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fake-grass-farmer
+  cancel-in-progress: false
+
+jobs:
+  farm:
+    name: Run fixed Python command
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run Fake Grass Farmer
+        run: python farmer.py
+
+      - name: Commit success file
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/fake_grass.log
+          git diff --cached --quiet || git commit -m "Farm fake grass"
+          git push origin HEAD:${{ github.ref_name }}
